@@ -36,10 +36,22 @@ type Wallet struct {
 	Owner    Entity
 }
 
-func (a *Account) Withdraw(amount float64) {
+type WithdrawError struct {
+	err                string
+	amount             float64
+	balanceAtErrorTime float64
+}
+
+func (w *WithdrawError) Error() string {
+	return fmt.Sprintf("%s: requested %.02f is greater than balance %.02f", w.err, w.amount, w.balanceAtErrorTime)
+}
+
+func (a *Account) Withdraw(amount float64) error {
 	if a.CanWithdraw(amount) {
 		a.Balance -= amount
+		return nil
 	}
+	return &WithdrawError{"Withdrawal Error", amount, a.Balance}
 }
 
 func (a *Account) CanWithdraw(amount float64) bool {
@@ -75,11 +87,13 @@ func (a *Account) ApplyInterest() {
 	a.Balance += a.Balance * apr
 }
 
-func (source *Account) wireTo(dest *Account, amount float64) {
-	if source.CanWithdraw(amount) {
-		source.Withdraw(amount)
-		dest.Deposit(amount)
+func (source *Account) wireTo(dest *Account, amount float64) error {
+	err := source.Withdraw(amount)
+	if err != nil {
+		return err
 	}
+	dest.Deposit(amount)
+	return nil
 }
 
 func (e *Entity) ChangeAddress(newAddress string) {
@@ -114,11 +128,8 @@ func (w Wallet) Balance() float64 {
 	return total
 }
 
-func (w *Wallet) Wire(source Account, destination Account, amount float64) {
-	if !source.CanWithdraw(amount) {
-		fmt.Printf("ERROR: not enough balance in account %v to withdraw $%v\n", source.Number, amount)
-	}
-	source.wireTo(&destination, amount)
+func (w *Wallet) Wire(source Account, destination Account, amount float64) error {
+	return source.wireTo(&destination, amount)
 }
 
 func main() {
@@ -152,11 +163,23 @@ func main() {
 
 	bobWallet.DisplayAccounts()
 	patWallet.DisplayAccounts()
-	
-	bobWallet.Wire(a1, a2, 10)
-	bobWallet.Wire(a1, a2, -10)
-	bobWallet.Wire(a1, a2, a1.Balance*10)
-	bobWallet.Wire(a1, a4, 300)
+
+	err := bobWallet.Wire(a1, a2, 10)
+	if err != nil {
+		fmt.Println(err)
+	}
+	err = bobWallet.Wire(a1, a2, -10)
+	if err != nil {
+		fmt.Println(err)
+	}
+	err = bobWallet.Wire(a1, a2, a1.Balance*10)
+	if err != nil {
+		fmt.Println(err)
+	}
+	err = bobWallet.Wire(a1, a4, 300)
+	if err != nil {
+		fmt.Println(err)
+	}
 	a4.ApplyInterest()
 	a4.ApplyInterest()
 	a4.ApplyInterest()
