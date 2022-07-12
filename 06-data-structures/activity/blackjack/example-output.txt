@@ -1,0 +1,12 @@
+$ go run blackjack.go 
+[4♦ 10♠ 4♣ 10♣ 9♣ 9♥ 8♦ J♣ A♠ 10♥ 10♦ 8♠ 8♣ K♥ Q♣ 7♣ 6♠ K♦ 6♦ 7♠ 7♥ 3♠ 4♠ 6♥ 9♦ Q♥ 4♥ J♥ 9♠ 8♥ A♣ K♠ 7♦ 5♠ 5♦ 2♠ K♣ 3♦ Q♦ J♦ A♥ 5♣ 2♦ 3♣ J♠ 5♥ 3♥ 6♣ 2♥ 2♣ Q♠ A♦]
+dealer: &[4♦ 4♣] = 8
+player: &[10♠ 10♣] = 20
+[9♣ 9♥ 8♦ J♣ A♠ 10♥ 10♦ 8♠ 8♣ K♥ Q♣ 7♣ 6♠ K♦ 6♦ 7♠ 7♥ 3♠ 4♠ 6♥ 9♦ Q♥ 4♥ J♥ 9♠ 8♥ A♣ K♠ 7♦ 5♠ 5♦ 2♠ K♣ 3♦ Q♦ J♦ A♥ 5♣ 2♦ 3♣ J♠ 5♥ 3♥ 6♣ 2♥ 2♣ Q♠ A♦]
+post-turn dealer: &[4♦ 4♣ 9♣] = 17
+hit or stand? (hit/stand) stand
+standing
+post-turn player: &[10♠ 10♣] = 20
+post-turn dealer: &[4♦ 4♣ 9♣ 9♥] = 26
+Dealer busts out with hand &[4♦ 4♣ 9♣ 9♥], score 26
+&[4♦ 4♣ 9♣ 9♥] &[10♠ 10♣]

@@ -1,0 +1,13 @@
+$ go run data-collections/03-number-prompt.go 
+enter a number: 10
+enter a number: 20
+enter a number: 30
+enter a number: 40
+enter a number: 50
+stop entry? (y/n) n 
+enter a number: 60
+stop entry? (y/n) y
+no more numbers
+numbers entered: [10 20 30 40 50 60]
+sum of the numbers: 210
+product of the numbers: 720000000

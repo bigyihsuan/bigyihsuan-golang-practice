@@ -84,7 +84,8 @@ func (a *Account) ApplyInterest() {
 			apr = 0.02
 		}
 	}
-	a.Balance += a.Balance * apr
+	a.InterestRate = apr
+	a.Balance += a.Balance * a.InterestRate
 }
 
 func (source *Account) wireTo(dest *Account, amount float64) error {

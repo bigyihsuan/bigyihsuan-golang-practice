@@ -1,0 +1,5 @@
+1. `go run rogue.go`
+2. Game runs automatically.
+3. Every 10 steps, you are asked to enter a potion shop. Enter `y` to enter, `n` to not enter.
+3a. You can buy potions from the potion shop. Enter a number in the range shown to buy that number of potions.
+4. When the hero dies you have the option to play again. Enter `y` to play again with a new hero with the same gold, or `n` to exit the game.

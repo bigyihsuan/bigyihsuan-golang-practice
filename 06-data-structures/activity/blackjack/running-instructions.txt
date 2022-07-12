@@ -1,0 +1,3 @@
+1. `go run blackjack.go`
+2. When prompted, type `hit` to get another card, `stand` to not get another card
+3. Watch you or the dealer win.
