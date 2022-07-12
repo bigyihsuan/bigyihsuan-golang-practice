@@ -128,8 +128,28 @@ func (w Wallet) Balance() float64 {
 	return total
 }
 
+type NotEnoughFundsError struct {
+	badSource          *Account
+	badAmount          float64
+	recommendedAccount *Account
+}
+
+// for error.Error() string
+func (n NotEnoughFundsError) Error() string {
+	return fmt.Sprintf("Account %v has not enough funds for wiring $%.02f, recommending account %v with balance $%.02f for wire transfer", n.badSource.Number, n.badAmount, n.recommendedAccount.Number, n.recommendedAccount.Balance)
+}
+
 func (w *Wallet) Wire(source Account, destination Account, amount float64) error {
-	return source.wireTo(&destination, amount)
+	err := source.wireTo(&destination, amount)
+	if err != nil {
+		fmt.Println(err)
+		for _, a := range w.Accounts {
+			if a.Balance >= amount {
+				return NotEnoughFundsError{badSource: &source, badAmount: amount, recommendedAccount: &a}
+			}
+		}
+	}
+	return nil
 }
 
 func main() {
