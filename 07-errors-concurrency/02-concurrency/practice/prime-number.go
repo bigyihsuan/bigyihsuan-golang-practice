@@ -7,46 +7,58 @@ import (
 )
 
 func main() {
-	numbers := make(chan int)
-	go generate(numbers)
-	isPrime(numbers)
-	switch {
+	numbers := generatePrimes(100)
+	primes := extract(numbers)
+	time.Sleep(time.Second)
+	for _, n := range primes {
+		fmt.Println(n)
 	}
 }
 
 // write 2 go routines:
 
 // - generate numbers
-func generate(numbers chan int) {
+func generatePrimes(n int) chan int {
 	fmt.Println("entered generate")
-	for n := 0; true; n++ {
-		numbers <- n
-		// fmt.Println("wrote", n)
-		time.Sleep(time.Second / 16)
-	}
+	numbers := make(chan int)
+	go func() {
+		for i := 2; i <= n; i++ {
+			maybe := <-isPrime(i)
+			if maybe {
+				numbers <- i
+			}
+			// fmt.Println("wrote", n)
+			// time.Sleep(time.Second / 16)
+		}
+		close(numbers)
+	}()
+	return numbers
 }
 
 // - check if a number is prime
-func isPrime(numbers chan int) {
-	for {
-	start:
-		n := <-numbers
-		// fmt.Println(n)
-		if n == 2 {
-			fmt.Printf("%v is prime\n", n)
-			goto start
+func isPrime(n int) chan bool {
+	out := make(chan bool)
+	go func() {
+		if n < 2 {
+			out <- false
+			return
 		}
-		if n <= 1 || n%2 == 0 {
-			fmt.Printf("%v is not prime\n", n)
-			goto start
-		}
-		for i := 3; i < int(math.Sqrt(float64(n))); i += 2 {
+		for i := 2; i < int(math.Sqrt(float64(n))); i++ {
 			if n%i == 0 {
-				fmt.Printf("%v is not prime\n", n)
-				goto start
+				out <- false
+				return
 			}
 		}
-		fmt.Printf("%v is prime\n", n)
-		time.Sleep(time.Second / 16)
+		out <- true
+		close(out)
+	}()
+	return out
+}
+
+func extract(numbers chan int) []int {
+	var ns []int
+	for n := range numbers {
+		ns = append(ns, n)
 	}
+	return ns
 }
