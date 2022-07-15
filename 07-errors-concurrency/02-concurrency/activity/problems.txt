@@ -1,0 +1,14 @@
+1) Create a slice of 20 of type int and take 20 number
+    create 4 goroutines to take average of every 5 elements
+    ex[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20] ,
+    so 1 goroutine should give average of first 5 elements and next for another 5 so on
+    https://go.dev/play/p/E-U0Kfd4IE
+
+2) Take a Paragraphs of text Max word 
+    up to 200 words in a Slice or String
+    and then Pass each  Sentence(up to full stop) to another go routine/routines 
+        a) print it in reverse order(1 goroutine)
+        b) count its words(2 goroutine)
+
+3) Create a goroutine/channels to send and receive structure data type
+    free to design for any purpose
