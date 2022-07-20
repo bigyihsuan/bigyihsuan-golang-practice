@@ -160,6 +160,18 @@ func getGrossPay(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func anyJson(w http.ResponseWriter, r *http.Request) {
+	reqBody, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	log.Println(string(reqBody))
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(reqBody)
+}
+
 func indexRoute(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Welcome to my API")
 }
@@ -168,6 +180,7 @@ func ConfigureRouter() *mux.Router {
 	router := mux.NewRouter().StrictSlash(true)
 
 	router.HandleFunc("/", indexRoute)
+	router.HandleFunc("/json", anyJson).Methods("POST")
 	router.HandleFunc("/people", getPeople).Methods("GET")
 	router.HandleFunc("/people", createPerson).Methods("POST")
 	router.HandleFunc("/people/{id:[0-9]+}", getPerson).Methods("GET")
