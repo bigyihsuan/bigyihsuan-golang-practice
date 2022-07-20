@@ -160,16 +160,23 @@ func getGrossPay(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+type datum map[string]interface{}
+
+var database []datum
+
 func anyJson(w http.ResponseWriter, r *http.Request) {
 	reqBody, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		log.Fatal(err)
 	}
+	var data datum
+	json.Unmarshal(reqBody, &data)
 
-	log.Println(string(reqBody))
+	log.Println(data)
+	database = append(database, data)
 
 	w.Header().Set("Content-Type", "application/json")
-	w.Write(reqBody)
+	json.NewEncoder(w).Encode(database)
 }
 
 func indexRoute(w http.ResponseWriter, r *http.Request) {
