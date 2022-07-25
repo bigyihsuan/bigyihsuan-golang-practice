@@ -1,3 +1,4 @@
+// Yi-Hsuan Hsu 7/25/22
 package main
 
 import (
@@ -10,8 +11,6 @@ import (
 	"time"
 )
 
-var startingDays = regexp.MustCompile("([0-9]+)d")
-
 func main() {
 	fmt.Println("Press CTRL-C to quit any time")
 	reader := bufio.NewReader(os.Stdin)
@@ -20,7 +19,7 @@ func main() {
 	var err error
 	for {
 		for {
-			fmt.Print("Enter duration 1 (DdHhMmSs): ")
+			fmt.Print("Enter duration 1 (WwDdHhMmSs): ")
 			d1str, _ = reader.ReadString('\n')
 			d1str = strings.TrimSpace(d1str)
 			d1, err = toDuration(d1str)
@@ -31,7 +30,7 @@ func main() {
 			}
 		}
 		for {
-			fmt.Print("Enter duration 2 (DdHhMmSs): ")
+			fmt.Print("Enter duration 2 (WwDdHhMmSs): ")
 			d2str, _ = reader.ReadString('\n')
 			d2str = strings.TrimSpace(d2str)
 			d2, err = toDuration(d2str)
@@ -67,12 +66,13 @@ func main() {
 }
 
 type DurationResult struct {
-	days, hours, minutes, seconds int
+	weeks, days, hours, minutes, seconds int
 }
 
 func (dr DurationResult) String() string {
 	var builder strings.Builder
-	builder.WriteString(fmt.Sprintf("%vd%vh%vm%vs\n", dr.days, dr.hours, dr.minutes, dr.seconds))
+	builder.WriteString(fmt.Sprintf("%vw%vd%vh%vm%vs\n", dr.weeks, dr.days, dr.hours, dr.minutes, dr.seconds))
+	builder.WriteString(fmt.Sprintf("%f weeks\n", dr.AsWeeks()))
 	builder.WriteString(fmt.Sprintf("%f days\n", dr.AsDays()))
 	builder.WriteString(fmt.Sprintf("%f hours\n", dr.AsHours()))
 	builder.WriteString(fmt.Sprintf("%f minutes\n", dr.AsMinutes()))
@@ -80,8 +80,12 @@ func (dr DurationResult) String() string {
 	return builder.String()
 }
 
+func (dr DurationResult) AsWeeks() float64 {
+	return float64(dr.weeks) + float64(dr.days)/7 + float64(dr.hours)/(7*24) + float64(dr.minutes)/(7*24*60) + float64(dr.seconds)/(7*24*60*60)
+}
+
 func (dr DurationResult) AsDays() float64 {
-	return float64(dr.days) + float64(dr.hours)/24 + float64(dr.minutes)/(24*60) + float64(dr.seconds)/(24*60*60)
+	return dr.AsWeeks() * 7
 }
 
 func (dr DurationResult) AsHours() float64 {
@@ -97,11 +101,13 @@ func (dr DurationResult) AsSeconds() float64 {
 }
 
 func toDHMS(t time.Duration) DurationResult {
-	days := int(t.Truncate(time.Hour*24) / (time.Hour * 24))
+	weeks := int(t.Truncate(time.Hour*24*7) / (time.Hour * 24 * 7))
+	days := int((t.Truncate(time.Hour*24) - t.Truncate(time.Hour*24*7)) / (time.Hour * 24))
 	hours := int((t.Truncate(time.Hour) - t.Truncate(time.Hour*24)) / time.Hour)
 	minutes := int((t.Truncate(time.Minute) - t.Truncate(time.Hour)) / time.Minute)
 	seconds := int((t.Truncate(time.Second) - t.Truncate(time.Minute)) / time.Second)
 	return DurationResult{
+		weeks:   weeks,
 		days:    days,
 		hours:   hours,
 		minutes: minutes,
@@ -109,17 +115,28 @@ func toDHMS(t time.Duration) DurationResult {
 	}
 }
 
+var startingDays = regexp.MustCompile("([0-9]+)d")
+var startingWeeks = regexp.MustCompile("([0-9]+)w")
+
 func toDuration(str string) (time.Duration, error) {
-	// get the days
+	// get the days and weeks
+	weekstr := startingWeeks.FindString(str)
+	weeks, err := strconv.Atoi(weekstr[:len(weekstr)-1])
+	if err != nil {
+		return 0, err
+	}
 	daystr := startingDays.FindString(str)
 	days, err := strconv.Atoi(daystr[:len(daystr)-1])
 	if err != nil {
 		return 0, err
 	}
+	// convert weeks to days
+	days += weeks * 7
 	// convert days to hours
 	dayHour := time.Hour * 24 * time.Duration(days)
 	// strip off the days
-	hms := strings.TrimPrefix(str, daystr)
+	dhmsstr := strings.TrimPrefix(str, weekstr)
+	hms := strings.TrimPrefix(dhmsstr, daystr)
 	d, err := time.ParseDuration(hms)
 	if err != nil {
 		return 0, err
