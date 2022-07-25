@@ -1,8 +1,11 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"os"
 	"regexp"
+	"strings"
 )
 
 func main() {
@@ -32,21 +35,24 @@ func main() {
 	// Next Assignment Find any three-letter words that start with the same letter and end with the same letter,
 	// but which might have a different letter in between, such as cat or cot.
 
-	// NOT POSSIBLE IN GOLANG WITH `regexp`, but below is if it *did* work:
-	cac := regexp.MustCompile(`(.).(\1)`) // any char, then any char, then the first char
-	fmt.Println("cat", cac.MatchString("cat"))
-	fmt.Println("man", cac.MatchString("man"))
-	fmt.Println("bob", cac.MatchString("bob"))
-	fmt.Println("pop", cac.MatchString("pop"))
+	// // NOT POSSIBLE IN GOLANG WITH `regexp`, but below is if it *did* work:
+	// cac := regexp.MustCompile(`(.).(\1)`) // any char, then any char, then the first char
+	// fmt.Println("cat", cac.MatchString("cat"))
+	// fmt.Println("man", cac.MatchString("man"))
+	// fmt.Println("bob", cac.MatchString("bob"))
+	// fmt.Println("pop", cac.MatchString("pop"))
 
-	// cac := regexp.MustCompile(`(?m)(?P<l>.).(?P<r>.)`) // any char, then any char, then the first char
-
-	// content := "bob"
-	// template := "$l$r"
-	// result := []byte{}
-	// fmt.Printf("cac: %v\n", cac)
-	// for _, submatches := range cac.FindAllSubmatchIndex([]byte(content), -1) {
-	// 	result = cac.Expand(result, []byte(template), []byte(content), submatches)
-	// }
-	// fmt.Println(string(result))
+	// any char, then any char, then the first char
+	reader := bufio.NewReader(os.Stdin)
+	fmt.Print("Enter string: ")
+	s, _ := reader.ReadString('\n')
+	s = strings.TrimSpace(s)
+	reg := fmt.Sprintf("^%[1]s.*%[1]s$", string(s[0]))
+	for {
+		fmt.Print("Enter string: ")
+		k, _ := reader.ReadString('\n')
+		k = strings.TrimSpace(k)
+		ok, err := regexp.MatchString(reg, k)
+		fmt.Println(k, ok, err)
+	}
 }
